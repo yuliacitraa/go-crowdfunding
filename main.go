@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"go-crowdfunding/auth"
 	"go-crowdfunding/handler"
 	"go-crowdfunding/user"
 	"log"
@@ -22,6 +24,9 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
+	authService := auth.NewService()
+
+	fmt.Println(authService.GenerateToken(1001))
 
 	userHandler := handler.NewUserHandler(userService)
 
@@ -31,9 +36,8 @@ func main() {
 
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
-
+	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
+	api.POST("/avatars", userHandler.UploadAvatar)
 
 	router.Run()
-
-
 }
