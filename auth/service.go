@@ -1,15 +1,20 @@
 package auth
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"errors"
+
+	"github.com/dgrijalva/jwt-go"
+)
 
 type Service interface {
 	GenerateToken(userID int) (string, error)
+	ValidateToken(token string) (*jwt.Token, error)
 }
 
 type jwtService struct {
 }
 
-var SECRET_KEY = []byte("go-crowdfunding-secret-key")
+var SECRET_KEY = []byte("g0-cr0wDfuNd1ng-sEcr3t-K3y")
 
 func NewService() *jwtService  {
 	return &jwtService{}
@@ -27,4 +32,22 @@ func (s *jwtService) GenerateToken(userID int) (string, error) {
 	}
 
 	return signedToken, nil
+}
+
+func (s *jwtService) ValidateToken(encodedtoken string) (*jwt.Token, error) {
+	token, err := jwt.Parse(encodedtoken, func(token *jwt.Token) (interface{}, error) {
+		_, ok :=token.Method.(*jwt.SigningMethodHMAC)
+
+		if !ok {
+			return nil, errors.New("Invalid token")
+		}
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return token, err
+	}
+
+	return token, nil
+
 }
